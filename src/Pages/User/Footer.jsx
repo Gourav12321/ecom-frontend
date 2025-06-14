@@ -3,7 +3,7 @@ import { FaGithub, FaLinkedin, FaInstagram } from "react-icons/fa";
 
 function Footer() {
   return (
-    <footer className="bg-gradient-to-r from-gray-900 to-black text-white py-10 px-4 z-[999]">
+    <footer className="bg-gradient-to-r from-gray-900 to-black text-white py-10 px-4 relative z-50">
       <div className="max-w-6xl mx-auto flex flex-col md:flex-row justify-between items-center">
         {/* Left Section */}
         <div className="flex flex-col md:flex-row items-center md:items-start">
