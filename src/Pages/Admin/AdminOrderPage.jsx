@@ -13,9 +13,11 @@ const AdminOrderPage = () => {
     const fetchOrders = async () => {
       try {
         setLoading(true);
-        const response = await apiClient.get("/api/orders");
-        if (response.data.success) {
-          setOrders(response.data.orders);
+        const response = await apiClient.get("/api/order/admin/orders");
+        console.log("API Response:", response.data); // Debug log
+
+        if (response.data && response.data.success) {
+          setOrders(response.data.orders || []);
         } else {
           setError("Failed to fetch orders");
         }
@@ -32,11 +34,15 @@ const AdminOrderPage = () => {
 
   const updateOrderStatus = async (orderId, newStatus) => {
     try {
-      const response = await apiClient.put(`/api/orders/${orderId}/status`, {
-        orderStatus: newStatus,
-      });
+      const response = await apiClient.post(
+        `/api/order/admin/orders/update-status`,
+        {
+          orderId: orderId,
+          orderStatus: newStatus,
+        }
+      );
 
-      if (response.data.success) {
+      if (response.data) {
         setOrders(
           orders.map((order) =>
             order._id === orderId ? { ...order, orderStatus: newStatus } : order
@@ -92,10 +98,16 @@ const AdminOrderPage = () => {
                   <tr key={order._id} className="border-b hover:bg-gray-50">
                     <td className="px-4 py-2">{order._id}</td>
                     <td className="px-4 py-2">
-                      {order.user ? order.user.email : "Unknown User"}
+                      {order.user?.email || "Guest User"}
                     </td>
                     <td className="px-4 py-2">
-                      {order.products.map((p) => p.product.title).join(", ")}
+                      {order.products
+                        .map((p) =>
+                          p.product && p.product.title
+                            ? p.product.title
+                            : "Product Unavailable"
+                        )
+                        .join(", ")}
                     </td>
                     <td className="px-4 py-2">
                       ${order.totalAmount.toFixed(2)}

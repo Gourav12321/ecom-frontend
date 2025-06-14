@@ -6,6 +6,7 @@ import { useDispatch } from "react-redux";
 import { setUser } from "../Redux/userSlice.js";
 import { useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
+import Cookies from "js-cookie";
 
 function OAuth() {
   const dispatch = useDispatch();
@@ -23,6 +24,15 @@ function OAuth() {
       };
 
       const response = await apiClient.post("/api/user/oAuth", payload);
+
+      // Store the token in cookies
+      if (response.data.token) {
+        Cookies.set("authToken", response.data.token, {
+          expires: 1, // 1 day
+          secure: true, // Use secure cookies in production
+          sameSite: "strict",
+        });
+      }
 
       dispatch(
         setUser({

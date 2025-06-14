@@ -13,7 +13,7 @@ const AllUsers = () => {
       setLoading(true);
       try {
         const response = await apiClient.get("/api/user/users");
-        setUsers(response.data.users);
+        setUsers(response.data);
       } catch (error) {
         toast.error("Failed to fetch users");
       } finally {
@@ -35,7 +35,7 @@ const AllUsers = () => {
         await apiClient.delete(`/api/user/delete-user/${userId}`);
 
         const response = await apiClient.get("/api/user/users");
-        setUsers(response.data.users);
+        setUsers(response.data);
       } catch (error) {
         toast.error("Failed to delete user");
       }
@@ -47,7 +47,7 @@ const AllUsers = () => {
       setLoading(true);
 
       const response = await apiClient.get("/api/user/users");
-      setUsers(response.data.users);
+      setUsers(response.data);
 
       setEditingUser(null);
       toast.success("User updated successfully!");
@@ -62,9 +62,8 @@ const AllUsers = () => {
   const handleUpdate = async () => {
     try {
       await apiClient.put("/api/user/update-user", editingUser);
-      handleSaveUser();
       const response = await apiClient.get("/api/user/users");
-      setUsers(response.data.users);
+      setUsers(response.data); // Changed from response.data.users to response.data
       setEditingUser(null);
       toast.success("User updated successfully!");
     } catch (error) {

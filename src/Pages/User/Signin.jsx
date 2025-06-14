@@ -4,6 +4,7 @@ import { IoEye, IoEyeOff } from "react-icons/io5";
 import { useDispatch, useSelector } from "react-redux";
 import { setUser } from "../Redux/userSlice";
 import { toast } from "react-toastify";
+import Cookies from "js-cookie";
 
 import styles from "../../style";
 import OAuthLogin from "./OAuth Login";
@@ -42,6 +43,15 @@ function Signin() {
       const userData = response.data;
 
       if (userData.success) {
+        // Store the token in cookies
+        if (userData.token) {
+          Cookies.set("authToken", userData.token, {
+            expires: 1, // 1 day
+            secure: true, // Use secure cookies in production
+            sameSite: "strict",
+          });
+        }
+
         toast.success("Login Successfully");
         setTimeout(() => {
           dispatch(

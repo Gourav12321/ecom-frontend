@@ -12,8 +12,8 @@ const AllProducts = () => {
     const fetchProducts = async () => {
       try {
         const response = await apiClient.get("/api/products");
-        if (response.data.success) {
-          setProducts(response.data.products);
+        if (response.data) {
+          setProducts(response.data);
         } else {
           toast.error("Failed to fetch products");
         }
