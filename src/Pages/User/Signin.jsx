@@ -1,13 +1,13 @@
-import React, { useEffect, useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
-import { IoEye, IoEyeOff } from 'react-icons/io5';
-import { useDispatch, useSelector } from 'react-redux';
-import { setUser } from '../Redux/userSlice';
-import { toast } from 'react-toastify';
+import React, { useEffect, useState } from "react";
+import { Link, useNavigate } from "react-router-dom";
+import { IoEye, IoEyeOff } from "react-icons/io5";
+import { useDispatch, useSelector } from "react-redux";
+import { setUser } from "../Redux/userSlice";
+import { toast } from "react-toastify";
 
-import styles from '../../style';
-import OAuthLogin from './OAuth Login';
-import apiClient from '../../config/api.js';
+import styles from "../../style";
+import OAuthLogin from "./OAuth Login";
+import apiClient from "../../config/api.js";
 
 function Signin() {
   const dispatch = useDispatch();
@@ -16,7 +16,7 @@ function Signin() {
 
   useEffect(() => {
     if (user) {
-      navigate('/');
+      navigate("/");
     }
   }, [navigate, user]);
 
@@ -38,11 +38,11 @@ function Signin() {
     e.preventDefault();
     setIsLoading(true); // Show loading spinner
     try {
-      const response = await apiClient.post('/api/user/signin', data);
+      const response = await apiClient.post("/api/user/signin", data);
       const userData = response.data;
 
       if (userData.success) {
-        toast.success('Login Successfully');
+        toast.success("Login Successfully");
         setTimeout(() => {
           dispatch(
             setUser({
@@ -54,12 +54,13 @@ function Signin() {
           );
         }, 1500);
 
-        navigate('/');
+        navigate("/");
       } else {
         toast.error(userData.message);
       }
     } catch (error) {
-      const errorMessage = error.response?.data?.message || 'An error occurred during signin';
+      const errorMessage =
+        error.response?.data?.message || "An error occurred during signin";
       toast.error(errorMessage);
     } finally {
       setIsLoading(false); // Hide loading spinner
@@ -69,7 +70,9 @@ function Signin() {
   return (
     <div className="w-full min-h-screen flex flex-col justify-center py-12 px-6 lg:px-8">
       <div className="sm:mx-auto sm:w-full sm:max-w-md">
-        <h1 className="mt-6 text-center text-3xl font-extrabold">Login To Your Account</h1>
+        <h1 className="mt-6 text-center text-3xl font-extrabold">
+          Login To Your Account
+        </h1>
       </div>
 
       <div className="mt-8 sm:mx-auto sm:w-full sm:max-w-md">
@@ -84,7 +87,7 @@ function Signin() {
                   type="email"
                   name="email"
                   required
-                  value={data.email || ''}
+                  value={data.email || ""}
                   onChange={handleChange}
                   className="appearance-none block w-full px-3 py-2 border rounded-md shadow-sm border-gray-300 placeholder-gray-400 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
                 />
@@ -96,19 +99,23 @@ function Signin() {
               </label>
               <div className="mt-1 relative">
                 <input
-                  type={seen ? 'text' : 'password'}
+                  type={seen ? "text" : "password"}
                   name="password"
                   required
-                  value={data.password || ''}
+                  value={data.password || ""}
                   onChange={handleChange}
                   className="appearance-none block w-full px-3 py-2 border rounded-md shadow-sm border-gray-300 placeholder-gray-400 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
                 />
                 <button
                   onClick={togglePasswordVisibility}
                   className="absolute inset-y-0 right-3 flex items-center"
-                  aria-label={seen ? 'Hide password' : 'Show password'}
+                  aria-label={seen ? "Hide password" : "Show password"}
                 >
-                  {seen ? <IoEye className="text-gray-500" /> : <IoEyeOff className="text-gray-500" />}
+                  {seen ? (
+                    <IoEye className="text-gray-500" />
+                  ) : (
+                    <IoEyeOff className="text-gray-500" />
+                  )}
                 </button>
               </div>
             </div>
@@ -118,7 +125,9 @@ function Signin() {
                 type="submit"
                 disabled={isLoading} // Disable button while loading
                 className={`group relative w-full h-[40px] flex justify-center py-2 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-blue-600 ${
-                  isLoading ? 'cursor-not-allowed bg-blue-400' : 'hover:bg-blue-700'
+                  isLoading
+                    ? "cursor-not-allowed bg-blue-400"
+                    : "hover:bg-blue-700"
                 }`}
               >
                 {isLoading ? (
@@ -146,7 +155,7 @@ function Signin() {
                     Loading...
                   </div>
                 ) : (
-                  'Submit'
+                  "Submit"
                 )}
               </button>
             </div>

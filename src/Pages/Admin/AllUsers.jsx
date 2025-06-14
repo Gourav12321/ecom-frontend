@@ -1,7 +1,7 @@
-import React, { useEffect, useState } from 'react';
-import apiClient from '../../config/api.js';
-import { toast } from 'react-toastify';
-import { FaEdit, FaTrash } from 'react-icons/fa';
+import React, { useEffect, useState } from "react";
+import apiClient from "../../config/api.js";
+import { toast } from "react-toastify";
+import { FaEdit, FaTrash } from "react-icons/fa";
 
 const AllUsers = () => {
   const [users, setUsers] = useState([]);
@@ -12,10 +12,10 @@ const AllUsers = () => {
     const fetchUsers = async () => {
       setLoading(true);
       try {
-        const response = await apiClient.get('/api/user/users');
+        const response = await apiClient.get("/api/user/users");
         setUsers(response.data.users);
       } catch (error) {
-        toast.error('Failed to fetch users');
+        toast.error("Failed to fetch users");
       } finally {
         setLoading(false);
       }
@@ -28,19 +28,17 @@ const AllUsers = () => {
   };
 
   const handleDelete = async (userId) => {
-    if (window.confirm('Are you sure you want to delete this user?')) {
-      toast.success('User deleted successfully');
+    if (window.confirm("Are you sure you want to delete this user?")) {
+      toast.success("User deleted successfully");
 
       try {
         await apiClient.delete(`/api/user/delete-user/${userId}`);
 
-        const response = await apiClient.get('/api/user/users');
+        const response = await apiClient.get("/api/user/users");
         setUsers(response.data.users);
-
       } catch (error) {
-        toast.error('Failed to delete user');
+        toast.error("Failed to delete user");
       }
-      
     }
   };
 
@@ -48,14 +46,14 @@ const AllUsers = () => {
     try {
       setLoading(true);
 
-      const response = await apiClient.get('/api/user/users');
+      const response = await apiClient.get("/api/user/users");
       setUsers(response.data.users);
 
       setEditingUser(null);
-      toast.success('User updated successfully!');
+      toast.success("User updated successfully!");
     } catch (error) {
-      console.error('Error updating user:', error);
-      toast.error('Failed to update user');
+      console.error("Error updating user:", error);
+      toast.error("Failed to update user");
     } finally {
       setLoading(false);
     }
@@ -63,15 +61,15 @@ const AllUsers = () => {
 
   const handleUpdate = async () => {
     try {
-      await apiClient.put('/api/user/update-user', editingUser);
+      await apiClient.put("/api/user/update-user", editingUser);
       handleSaveUser();
-      const response = await apiClient.get('/api/user/users');
+      const response = await apiClient.get("/api/user/users");
       setUsers(response.data.users);
       setEditingUser(null);
-      toast.success('User updated successfully!');
+      toast.success("User updated successfully!");
     } catch (error) {
-      console.error('Error updating user:', error);
-      toast.error('Failed to update user');
+      console.error("Error updating user:", error);
+      toast.error("Failed to update user");
     }
   };
 

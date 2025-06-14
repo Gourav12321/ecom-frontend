@@ -1,35 +1,35 @@
-import React, { useState, useEffect } from 'react';
-import apiClient from '../../config/api.js';
-import { storage } from '../../Firebase.js';
+import React, { useState, useEffect } from "react";
+import apiClient from "../../config/api.js";
+import { storage } from "../../Firebase.js";
 import { ref, uploadBytes, getDownloadURL } from "firebase/storage";
-import { toast } from 'react-toastify';
+import { toast } from "react-toastify";
 
 const UploadProduct = () => {
   const [product, setProduct] = useState({
-    title: '',
-    description: '',
-    category: '',
-    subcategory: '',
-    price: '',
-    discountPercentage: '',
-    rating: '',
-    stock: '',
-    tags: '',
-    brand: '',
-    sku: '',
-    weight: '',
+    title: "",
+    description: "",
+    category: "",
+    subcategory: "",
+    price: "",
+    discountPercentage: "",
+    rating: "",
+    stock: "",
+    tags: "",
+    brand: "",
+    sku: "",
+    weight: "",
     dimensions: {
-      width: '',
-      height: '',
-      depth: ''
+      width: "",
+      height: "",
+      depth: "",
     },
-    warrantyInformation: '',
-    shippingInformation: '',
-    availabilityStatus: '',
-    returnPolicy: '',
-    minimumOrderQuantity: '',
-    thumbnail: '',
-    images: []
+    warrantyInformation: "",
+    shippingInformation: "",
+    availabilityStatus: "",
+    returnPolicy: "",
+    minimumOrderQuantity: "",
+    thumbnail: "",
+    images: [],
   });
 
   const [categories, setCategories] = useState([]);
@@ -37,21 +37,21 @@ const UploadProduct = () => {
   const [selectedImages, setSelectedImages] = useState([]);
   const [imageURLs, setImageURLs] = useState([]);
   const [imageLinks, setImageLinks] = useState([]);
-  const [imageLink, setImageLink] = useState('');
+  const [imageLink, setImageLink] = useState("");
   const [isImageUpload, setIsImageUpload] = useState(true);
   const [thumbnailUpload, setThumbnailUpload] = useState(true);
   const [thumbnailImage, setThumbnailImage] = useState(null);
-  const [thumbnailURL, setThumbnailURL] = useState('');
+  const [thumbnailURL, setThumbnailURL] = useState("");
   const [loading, setLoading] = useState(false);
   const [errors, setErrors] = useState({});
 
   useEffect(() => {
     const fetchCategories = async () => {
       try {
-        const { data } = await apiClient.get('/api/categories');
+        const { data } = await apiClient.get("/api/categories");
         setCategories(data.categories);
       } catch (error) {
-        console.error('Failed to fetch categories:', error);
+        console.error("Failed to fetch categories:", error);
       }
     };
 
@@ -63,33 +63,38 @@ const UploadProduct = () => {
     setProduct((prevProduct) => ({ ...prevProduct, category: categoryId }));
 
     try {
-      const { data } = await apiClient.get(`/api/categories/${categoryId}/subcategories`);
+      const { data } = await apiClient.get(
+        `/api/categories/${categoryId}/subcategories`
+      );
       setSubcategories(data.subcategories);
     } catch (error) {
-      console.error('Failed to fetch subcategories:', error);
+      console.error("Failed to fetch subcategories:", error);
     }
   };
 
   const handleSubcategoryChange = (e) => {
-    setProduct((prevProduct) => ({ ...prevProduct, subcategory: e.target.value }));
+    setProduct((prevProduct) => ({
+      ...prevProduct,
+      subcategory: e.target.value,
+    }));
   };
 
   const handleChange = (e) => {
     const { name, value } = e.target;
 
-    if (name.includes('.')) {
-      const [key, nestedKey] = name.split('.');
+    if (name.includes(".")) {
+      const [key, nestedKey] = name.split(".");
       setProduct((prevProduct) => ({
         ...prevProduct,
         [key]: {
           ...prevProduct[key],
-          [nestedKey]: value
-        }
+          [nestedKey]: value,
+        },
       }));
     } else {
       setProduct((prevProduct) => ({
         ...prevProduct,
-        [name]: value
+        [name]: value,
       }));
     }
   };
@@ -98,8 +103,8 @@ const UploadProduct = () => {
     const files = Array.from(e.target.files);
     const urls = [];
 
-    files.forEach(file => {
-      if (file.type.startsWith('image/')) {
+    files.forEach((file) => {
+      if (file.type.startsWith("image/")) {
         const reader = new FileReader();
 
         reader.onloadend = () => {
@@ -111,11 +116,11 @@ const UploadProduct = () => {
       } else {
         setErrors((prevErrors) => ({
           ...prevErrors,
-          images: 'Please select valid image files.'
+          images: "Please select valid image files.",
         }));
       }
     });
-    toast.success('Photo Uploaded!')
+    toast.success("Photo Uploaded!");
     setSelectedImages(files);
   };
 
@@ -125,7 +130,7 @@ const UploadProduct = () => {
 
   const handleThumbnailChange = (e) => {
     const file = e.target.files[0];
-    if (file && file.type.startsWith('image/')) {
+    if (file && file.type.startsWith("image/")) {
       const reader = new FileReader();
 
       reader.onloadend = () => {
@@ -137,10 +142,10 @@ const UploadProduct = () => {
     } else {
       setErrors((prevErrors) => ({
         ...prevErrors,
-        thumbnail: 'Please select a valid image file.'
+        thumbnail: "Please select a valid image file.",
       }));
     }
-    toast.success('Photo Uploaded!')
+    toast.success("Photo Uploaded!");
   };
 
   const handleThumbnailLinkChange = (e) => {
@@ -150,49 +155,56 @@ const UploadProduct = () => {
   const handleUpload = async () => {
     setLoading(true);
     setErrors({});
-  
+
     try {
       let thumbnailUrl = thumbnailURL;
-  
+
       if (thumbnailUpload && thumbnailImage) {
         const storageRef = ref(storage, `thumbnails/${thumbnailImage.name}`);
         await uploadBytes(storageRef, thumbnailImage);
         thumbnailUrl = await getDownloadURL(storageRef);
       }
-  
+
       let imageUrls = [];
-  
+
       if (isImageUpload) {
-        imageUrls = await Promise.all(selectedImages.map(async (file) => {
-          const storageRef = ref(storage, `images/${file.name}`);
-          await uploadBytes(storageRef, file);
-          return getDownloadURL(storageRef);
-        }));
+        imageUrls = await Promise.all(
+          selectedImages.map(async (file) => {
+            const storageRef = ref(storage, `images/${file.name}`);
+            await uploadBytes(storageRef, file);
+            return getDownloadURL(storageRef);
+          })
+        );
       } else if (imageLinks.length > 0) {
         imageUrls = imageLinks;
       }
-  
+
       if (!thumbnailUrl) {
-        throw new Error('Thumbnail image is required.');
+        throw new Error("Thumbnail image is required.");
       }
-  
+
       if (imageUrls.length === 0) {
-        throw new Error('At least one product image is required.');
+        throw new Error("At least one product image is required.");
       }
-  
-      const productData = { ...product, thumbnail: thumbnailUrl, images: imageUrls };
-  
-      await apiClient.post('/api/products', productData);
-      toast.success('Product uploaded successfully!');
+
+      const productData = {
+        ...product,
+        thumbnail: thumbnailUrl,
+        images: imageUrls,
+      };
+
+      await apiClient.post("/api/products", productData);
+      toast.success("Product uploaded successfully!");
       // Reset form or redirect after successful upload if needed
     } catch (error) {
       console.error("Error uploading product:", error);
-      toast.error(`Failed to upload product: ${error.message || 'Unknown error occurred'}`);
+      toast.error(
+        `Failed to upload product: ${error.message || "Unknown error occurred"}`
+      );
     } finally {
       setLoading(false);
     }
   };
-
 
   return (
     <div className="max-w-4xl mx-auto p-4 md:pt-0 pt-10  sm:p-6 lg:p-8">
@@ -202,7 +214,9 @@ const UploadProduct = () => {
         <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3 mb-4">
           {/* Example Field */}
           <div>
-            <label className="block text-gray-700 mb-2" htmlFor="title">Title</label>
+            <label className="block text-gray-700 mb-2" htmlFor="title">
+              Title
+            </label>
             <input
               id="title"
               name="title"
@@ -215,7 +229,9 @@ const UploadProduct = () => {
           </div>
           {/* Add similar inputs for other fields */}
           <div>
-            <label className="block text-gray-700 mb-2" htmlFor="description">Description</label>
+            <label className="block text-gray-700 mb-2" htmlFor="description">
+              Description
+            </label>
             <textarea
               id="description"
               name="description"
@@ -227,7 +243,9 @@ const UploadProduct = () => {
             />
           </div>
           <div>
-            <label className="block text-gray-700 mb-2" htmlFor="price">Price</label>
+            <label className="block text-gray-700 mb-2" htmlFor="price">
+              Price
+            </label>
             <input
               id="price"
               name="price"
@@ -239,7 +257,12 @@ const UploadProduct = () => {
             />
           </div>
           <div>
-            <label className="block text-gray-700 mb-2" htmlFor="discountPercentage">Discount Percentage</label>
+            <label
+              className="block text-gray-700 mb-2"
+              htmlFor="discountPercentage"
+            >
+              Discount Percentage
+            </label>
             <input
               id="discountPercentage"
               name="discountPercentage"
@@ -251,7 +274,9 @@ const UploadProduct = () => {
             />
           </div>
           <div>
-            <label className="block text-gray-700 mb-2" htmlFor="rating">Rating</label>
+            <label className="block text-gray-700 mb-2" htmlFor="rating">
+              Rating
+            </label>
             <input
               id="rating"
               name="rating"
@@ -265,7 +290,9 @@ const UploadProduct = () => {
             />
           </div>
           <div>
-            <label className="block text-gray-700 mb-2" htmlFor="stock">Stock</label>
+            <label className="block text-gray-700 mb-2" htmlFor="stock">
+              Stock
+            </label>
             <input
               id="stock"
               name="stock"
@@ -277,7 +304,9 @@ const UploadProduct = () => {
             />
           </div>
           <div>
-            <label className="block text-gray-700 mb-2" htmlFor="tags">Tags</label>
+            <label className="block text-gray-700 mb-2" htmlFor="tags">
+              Tags
+            </label>
             <input
               id="tags"
               name="tags"
@@ -289,7 +318,9 @@ const UploadProduct = () => {
             />
           </div>
           <div>
-            <label className="block text-gray-700 mb-2" htmlFor="brand">Brand</label>
+            <label className="block text-gray-700 mb-2" htmlFor="brand">
+              Brand
+            </label>
             <input
               id="brand"
               name="brand"
@@ -301,7 +332,9 @@ const UploadProduct = () => {
             />
           </div>
           <div>
-            <label className="block text-gray-700 mb-2" htmlFor="sku">SKU</label>
+            <label className="block text-gray-700 mb-2" htmlFor="sku">
+              SKU
+            </label>
             <input
               id="sku"
               name="sku"
@@ -313,7 +346,9 @@ const UploadProduct = () => {
             />
           </div>
           <div>
-            <label className="block text-gray-700 mb-2" htmlFor="weight">Weight</label>
+            <label className="block text-gray-700 mb-2" htmlFor="weight">
+              Weight
+            </label>
             <input
               id="weight"
               name="weight"
@@ -325,7 +360,12 @@ const UploadProduct = () => {
             />
           </div>
           <div>
-            <label className="block text-gray-700 mb-2" htmlFor="dimensions.width">Width</label>
+            <label
+              className="block text-gray-700 mb-2"
+              htmlFor="dimensions.width"
+            >
+              Width
+            </label>
             <input
               id="dimensions.width"
               name="dimensions.width"
@@ -337,7 +377,12 @@ const UploadProduct = () => {
             />
           </div>
           <div>
-            <label className="block text-gray-700 mb-2" htmlFor="dimensions.height">Height</label>
+            <label
+              className="block text-gray-700 mb-2"
+              htmlFor="dimensions.height"
+            >
+              Height
+            </label>
             <input
               id="dimensions.height"
               name="dimensions.height"
@@ -349,7 +394,12 @@ const UploadProduct = () => {
             />
           </div>
           <div>
-            <label className="block text-gray-700 mb-2" htmlFor="dimensions.depth">Depth</label>
+            <label
+              className="block text-gray-700 mb-2"
+              htmlFor="dimensions.depth"
+            >
+              Depth
+            </label>
             <input
               id="dimensions.depth"
               name="dimensions.depth"
@@ -361,7 +411,12 @@ const UploadProduct = () => {
             />
           </div>
           <div>
-            <label className="block text-gray-700 mb-2" htmlFor="warrantyInformation">Warranty Information</label>
+            <label
+              className="block text-gray-700 mb-2"
+              htmlFor="warrantyInformation"
+            >
+              Warranty Information
+            </label>
             <textarea
               id="warrantyInformation"
               name="warrantyInformation"
@@ -373,7 +428,12 @@ const UploadProduct = () => {
             />
           </div>
           <div>
-            <label className="block text-gray-700 mb-2" htmlFor="shippingInformation">Shipping Information</label>
+            <label
+              className="block text-gray-700 mb-2"
+              htmlFor="shippingInformation"
+            >
+              Shipping Information
+            </label>
             <textarea
               id="shippingInformation"
               name="shippingInformation"
@@ -385,7 +445,12 @@ const UploadProduct = () => {
             />
           </div>
           <div>
-            <label className="block text-gray-700 mb-2" htmlFor="availabilityStatus">Availability Status</label>
+            <label
+              className="block text-gray-700 mb-2"
+              htmlFor="availabilityStatus"
+            >
+              Availability Status
+            </label>
             <input
               id="availabilityStatus"
               name="availabilityStatus"
@@ -397,7 +462,9 @@ const UploadProduct = () => {
             />
           </div>
           <div>
-            <label className="block text-gray-700 mb-2" htmlFor="returnPolicy">Return Policy</label>
+            <label className="block text-gray-700 mb-2" htmlFor="returnPolicy">
+              Return Policy
+            </label>
             <textarea
               id="returnPolicy"
               name="returnPolicy"
@@ -409,7 +476,12 @@ const UploadProduct = () => {
             />
           </div>
           <div>
-            <label className="block text-gray-700 mb-2" htmlFor="minimumOrderQuantity">Minimum Order Quantity</label>
+            <label
+              className="block text-gray-700 mb-2"
+              htmlFor="minimumOrderQuantity"
+            >
+              Minimum Order Quantity
+            </label>
             <input
               id="minimumOrderQuantity"
               name="minimumOrderQuantity"
@@ -424,7 +496,9 @@ const UploadProduct = () => {
 
         {/* Category and Subcategory */}
         <div className="mb-4">
-          <label className="block text-gray-700 mb-2" htmlFor="category">Category</label>
+          <label className="block text-gray-700 mb-2" htmlFor="category">
+            Category
+          </label>
           <select
             id="category"
             name="category"
@@ -434,13 +508,17 @@ const UploadProduct = () => {
           >
             <option value="">Select Category</option>
             {categories.map((cat) => (
-              <option key={cat._id} value={cat._id}>{cat.name}</option>
+              <option key={cat._id} value={cat._id}>
+                {cat.name}
+              </option>
             ))}
           </select>
         </div>
 
         <div className="mb-4">
-          <label className="block text-gray-700 mb-2" htmlFor="subcategory">Subcategory</label>
+          <label className="block text-gray-700 mb-2" htmlFor="subcategory">
+            Subcategory
+          </label>
           <select
             id="subcategory"
             name="subcategory"
@@ -450,14 +528,18 @@ const UploadProduct = () => {
           >
             <option value="">Select Subcategory</option>
             {subcategories.map((sub) => (
-              <option key={sub._id} value={sub._id}>{sub.name}</option>
+              <option key={sub._id} value={sub._id}>
+                {sub.name}
+              </option>
             ))}
           </select>
         </div>
 
         {/* Thumbnail Upload */}
         <div className="mb-4">
-          <label className="block text-gray-700 mb-2" htmlFor="thumbnail">Thumbnail</label>
+          <label className="block text-gray-700 mb-2" htmlFor="thumbnail">
+            Thumbnail
+          </label>
           <div className="flex flex-col sm:flex-row gap-4">
             <div className="flex-1">
               <input
@@ -498,7 +580,9 @@ const UploadProduct = () => {
                 onChange={handleImageChange}
                 className="w-full px-3 py-2 border border-gray-300 rounded-lg"
               />
-              {errors.images && <p className="text-red-500 text-sm">{errors.images}</p>}
+              {errors.images && (
+                <p className="text-red-500 text-sm">{errors.images}</p>
+              )}
               <div className="mt-4 flex flex-wrap gap-4">
                 {imageURLs.map((url, index) => (
                   <img
@@ -544,15 +628,17 @@ const UploadProduct = () => {
           <button
             type="button"
             onClick={handleUpload}
-            className={`px-6 py-3 bg-green-500 text-white rounded-lg ${loading ? 'opacity-50 cursor-not-allowed' : ''}`}
+            className={`px-6 py-3 bg-green-500 text-white rounded-lg ${
+              loading ? "opacity-50 cursor-not-allowed" : ""
+            }`}
             disabled={loading}
           >
-            {loading ? 'Uploading...' : 'Upload Product'}
+            {loading ? "Uploading..." : "Upload Product"}
           </button>
         </div>
       </div>
     </div>
   );
-}
+};
 
 export default UploadProduct;

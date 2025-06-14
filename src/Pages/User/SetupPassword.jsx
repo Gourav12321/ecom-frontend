@@ -1,21 +1,21 @@
-import React, { useEffect, useState } from 'react';
-import { useLocation, useNavigate } from 'react-router-dom';
-import apiClient from '../../config/api.js';
-import { FaCheckCircle, FaExclamationCircle } from 'react-icons/fa';
-import CircularProgress from '@mui/material/CircularProgress'; 
-import {  toast } from 'react-toastify';
+import React, { useEffect, useState } from "react";
+import { useLocation, useNavigate } from "react-router-dom";
+import apiClient from "../../config/api.js";
+import { FaCheckCircle, FaExclamationCircle } from "react-icons/fa";
+import CircularProgress from "@mui/material/CircularProgress";
+import { toast } from "react-toastify";
 function SetupPassword() {
   const location = useLocation();
   const navigate = useNavigate();
-  const [password, setPassword] = useState('');
-  const [error, setError] = useState('');
+  const [password, setPassword] = useState("");
+  const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
   const [strength, setStrength] = useState(0);
   const email = location.state?.email;
 
   useEffect(() => {
     if (!email) {
-      navigate('/sign-in');
+      navigate("/sign-in");
     }
   }, [email, navigate]);
 
@@ -38,25 +38,28 @@ function SetupPassword() {
     e.preventDefault();
 
     if (strength < 3) {
-      setError('Password is too weak.');
+      setError("Password is too weak.");
       return;
     }
 
     try {
       setLoading(true);
-      setError('');
+      setError("");
 
-      const response = await apiClient.post('/api/user/setup-password', { email, password });
-      
+      const response = await apiClient.post("/api/user/setup-password", {
+        email,
+        password,
+      });
+
       if (response.data.success) {
-        toast.success('Password setup Succesfully!');
-        toast.info('Please Sign In First To activate your Account');
-        navigate('/sign-in');
+        toast.success("Password setup Succesfully!");
+        toast.info("Please Sign In First To activate your Account");
+        navigate("/sign-in");
       } else {
-        setError('Password setup failed. Please try again.');
+        setError("Password setup failed. Please try again.");
       }
     } catch (error) {
-      setError('An error occurred during password setup. Please try again.');
+      setError("An error occurred during password setup. Please try again.");
     } finally {
       setLoading(false);
     }
@@ -65,7 +68,9 @@ function SetupPassword() {
   return (
     <div className="flex flex-col items-center justify-center min-h-screen bg-gray-100 p-4">
       <div className="bg-white shadow-lg rounded-lg p-8 max-w-md w-full">
-        <h2 className="text-2xl font-semibold text-center mb-6">Set Up Your Password</h2>
+        <h2 className="text-2xl font-semibold text-center mb-6">
+          Set Up Your Password
+        </h2>
         <form onSubmit={handleSubmit}>
           <div className="relative mb-4">
             <input
@@ -90,7 +95,7 @@ function SetupPassword() {
               disabled={loading}
               className="w-full bg-blue-500 text-white py-2 rounded-lg hover:bg-blue-600 transition-colors"
             >
-              {loading ? <CircularProgress size={24} /> : 'Set Password'}
+              {loading ? <CircularProgress size={24} /> : "Set Password"}
             </button>
           </div>
         </form>
@@ -103,21 +108,24 @@ function PasswordStrengthIndicator({ strength }) {
   const getColor = (strength) => {
     switch (strength) {
       case 1:
-        return 'bg-red-500';
+        return "bg-red-500";
       case 2:
-        return 'bg-yellow-500';
+        return "bg-yellow-500";
       case 3:
-        return 'bg-blue-500';
+        return "bg-blue-500";
       case 4:
-        return 'bg-green-500';
+        return "bg-green-500";
       default:
-        return 'bg-gray-300';
+        return "bg-gray-300";
     }
   };
 
   return (
     <div className="h-2 w-full bg-gray-300 rounded-lg mt-2">
-      <div className={`h-full ${getColor(strength)} rounded-lg`} style={{ width: `${(strength / 4) * 100}%` }}></div>
+      <div
+        className={`h-full ${getColor(strength)} rounded-lg`}
+        style={{ width: `${(strength / 4) * 100}%` }}
+      ></div>
     </div>
   );
 }

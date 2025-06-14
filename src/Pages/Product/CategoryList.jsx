@@ -1,7 +1,7 @@
-import apiClient from '../../config/api.js';
-import React, { useEffect, useState, useRef } from 'react';
-import { Link } from 'react-router-dom';
-import { FaChevronLeft, FaChevronRight } from 'react-icons/fa';
+import apiClient from "../../config/api.js";
+import React, { useEffect, useState, useRef } from "react";
+import { Link } from "react-router-dom";
+import { FaChevronLeft, FaChevronRight } from "react-icons/fa";
 
 const CategoryList = () => {
   const [categoryProduct, setCategoryProduct] = useState([]);
@@ -15,10 +15,10 @@ const CategoryList = () => {
   const fetchCategoryProduct = async () => {
     try {
       setLoading(true);
-      const response = await apiClient.get('/api/categories');
+      const response = await apiClient.get("/api/categories");
       setCategoryProduct(response.data.categories || []);
     } catch (error) {
-      console.error('Error fetching category products:', error);
+      console.error("Error fetching category products:", error);
     } finally {
       setLoading(false);
     }
@@ -37,26 +37,35 @@ const CategoryList = () => {
   }, []);
 
   useEffect(() => {
-    updateButtonVisibility(); 
-    window.addEventListener('resize', updateButtonVisibility);
+    updateButtonVisibility();
+    window.addEventListener("resize", updateButtonVisibility);
 
     if (categoryListRef.current) {
-      categoryListRef.current.addEventListener('scroll', updateButtonVisibility);
+      categoryListRef.current.addEventListener(
+        "scroll",
+        updateButtonVisibility
+      );
     }
 
     return () => {
-      window.removeEventListener('resize', updateButtonVisibility);
+      window.removeEventListener("resize", updateButtonVisibility);
 
       if (categoryListRef.current) {
-        categoryListRef.current.removeEventListener('scroll', updateButtonVisibility);
+        categoryListRef.current.removeEventListener(
+          "scroll",
+          updateButtonVisibility
+        );
       }
     };
   }, [categoryProduct]);
 
   const handleScroll = (direction) => {
     if (categoryListRef.current) {
-      const scrollAmount = direction === 'left' ? -300 : 300;
-      categoryListRef.current.scrollBy({ left: scrollAmount, behavior: 'smooth' });
+      const scrollAmount = direction === "left" ? -300 : 300;
+      categoryListRef.current.scrollBy({
+        left: scrollAmount,
+        behavior: "smooth",
+      });
     }
   };
 
@@ -65,7 +74,7 @@ const CategoryList = () => {
       {showLeftButton && (
         <button
           className="absolute -left-6 top-[40%] transform -translate-y-1/2 z-10 hidden lg:block bg-gray-200 hover:bg-gray-300 p-2 rounded-full shadow-md"
-          onClick={() => handleScroll('left')}
+          onClick={() => handleScroll("left")}
         >
           <FaChevronLeft size={24} />
         </button>
@@ -74,7 +83,7 @@ const CategoryList = () => {
       {showRightButton && (
         <button
           className="absolute -right-5 top-[40%] transform -translate-y-1/2 z-10 hidden lg:block bg-gray-200 hover:bg-gray-300 p-2 rounded-full shadow-md"
-          onClick={() => handleScroll('right')}
+          onClick={() => handleScroll("right")}
         >
           <FaChevronRight size={24} />
         </button>
@@ -91,28 +100,29 @@ const CategoryList = () => {
               key={`categoryLoading-${index}`}
             />
           ))
+        ) : Array.isArray(categoryProduct) && categoryProduct.length > 0 ? (
+          categoryProduct.map((product) => (
+            <Link
+              to={`/product-category?category=${product._id}`}
+              className="cursor-pointer"
+              key={product._id}
+            >
+              <div className="category-item w-16 h-16 md:w-20 md:h-20 rounded-full overflow-hidden p-4 bg-slate-200 flex items-center justify-center hover:shadow-lg transition-all">
+                <img
+                  src={product.photo}
+                  alt={product.name}
+                  className="h-full object-scale-down mix-blend-multiply hover:scale-110 transition-all"
+                />
+              </div>
+              <p className="text-center text-sm md:text-base capitalize mt-2">
+                {product.name}
+              </p>
+            </Link>
+          ))
         ) : (
-          Array.isArray(categoryProduct) && categoryProduct.length > 0 ? (
-            categoryProduct.map((product) => (
-              <Link to={`/product-category?category=${product._id}`} className="cursor-pointer" key={product._id}>
-                <div className="category-item w-16 h-16 md:w-20 md:h-20 rounded-full overflow-hidden p-4 bg-slate-200 flex items-center justify-center hover:shadow-lg transition-all">
-                  <img
-                    src={product.photo}
-                    alt={product.name}
-                    className="h-full object-scale-down mix-blend-multiply hover:scale-110 transition-all"
-                  />
-                </div>
-                <p className="text-center text-sm md:text-base capitalize mt-2">
-                  {product.name}
-                </p>
-              </Link>
-
-            ))
-          ) : (
-            <p className="text-center text-sm md:text-base capitalize mt-2">
-              No categories available
-            </p>
-          )
+          <p className="text-center text-sm md:text-base capitalize mt-2">
+            No categories available
+          </p>
         )}
       </div>
     </div>
