@@ -1,8 +1,8 @@
-import axios from 'axios';
 import React, { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
-import AddBannerProductModal from './AddBannerProductModal'; 
 import { toast } from 'react-toastify';
+import apiClient from '../../config/api.js';
+import AddBannerProductModal from './AddBannerProductModal'; 
 
 function AdminBannerProduct() {
     const [photoData, setPhotoData] = useState([]);
@@ -14,7 +14,7 @@ function AdminBannerProduct() {
     useEffect(() => {
         const fetchData = async () => {
             try {
-                const response = await axios.get('/api/categories');
+                const response = await apiClient.get('/api/categories');
                 
                 setAllCategories(response.data.categories);
 
@@ -31,9 +31,9 @@ function AdminBannerProduct() {
 
     const handleSave = async (categoryId, imageUrl) => {
         try {
-            await axios.put(`/api/categories/${categoryId}`, { bannerPhoto: imageUrl });
+            await apiClient.put(`/api/categories/${categoryId}`, { bannerPhoto: imageUrl });
             setIsModalOpen(false);
-            const updatedResponse = await axios.get('/api/categories');
+            const updatedResponse = await apiClient.get('/api/categories');
             
             setAllCategories(updatedResponse.data.categories);
 
@@ -55,8 +55,8 @@ function AdminBannerProduct() {
 
     const handleDelete = async (categoryId) => {
         try {
-            await axios.put(`/api/categories/${categoryId}`, { bannerPhoto: null });
-            const updatedResponse = await axios.get('/api/categories');
+            await apiClient.put(`/api/categories/${categoryId}`, { bannerPhoto: null });
+            const updatedResponse = await apiClient.get('/api/categories');
             
             setAllCategories(updatedResponse.data.categories);
 

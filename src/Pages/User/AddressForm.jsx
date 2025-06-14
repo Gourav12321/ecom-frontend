@@ -1,11 +1,11 @@
 import React, { useState, useEffect } from "react";
-import axios from "axios";
+import apiClient from "../../config/api.js";
 import Select from "react-select";
 import { Country, State, City } from "country-state-city";
 import { useNavigate } from "react-router-dom";
 import { useSelector } from "react-redux";
 import AddressDisplay from "./AddressDisplay";
-import { toast } from 'react-toastify';
+import { toast } from "react-toastify";
 
 const AddressForm = () => {
   const user = useSelector((state) => state.user.user);
@@ -33,9 +33,9 @@ const AddressForm = () => {
   const userEmail = user?.email;
   const fetchAddresses = async () => {
     try {
-      const response = await axios.get("/api/user/getAllAddresses", {
-        params: { email: userEmail },
-      });
+      const response = await apiClient.get(
+        `/api/user/getaddressbyemail/${userEmail}`
+      );
       if (response.data.success) {
         const fetchedAddresses = response.data.addresses || [];
         setAddresses(fetchedAddresses);
@@ -55,8 +55,6 @@ const AddressForm = () => {
     if (!user) {
       navigate("/sign-in");
     } else if (userEmail) {
-      
-
       fetchAddresses();
     }
 
@@ -101,7 +99,9 @@ const AddressForm = () => {
   };
 
   const handleStateChange = (selectedOption) => {
-    const selectedState = states.find((state) => state.isoCode === selectedOption.value);
+    const selectedState = states.find(
+      (state) => state.isoCode === selectedOption.value
+    );
     setAddress({
       ...address,
       state: selectedState.name,
@@ -127,7 +127,7 @@ const AddressForm = () => {
     e.preventDefault();
     try {
       if (selectedAddress) {
-        const response = await axios.put("/api/user/updateAddress", {
+        const response = await apiClient.put("/api/user/updateAddress", {
           email: userEmail,
           address: { ...address, _id: selectedAddress._id },
         });
@@ -139,29 +139,29 @@ const AddressForm = () => {
           );
           setSelectedAddress(response.data.address);
           setIsEditing(false);
-          toast.success('Address updated successfully!');
-          fetchAddresses
+          toast.success("Address updated successfully!");
+          fetchAddresses;
         } else {
-          toast.error('Failed to update address');
+          toast.error("Failed to update address");
         }
       } else {
-        const response = await axios.post("/api/user/userAddress", {
+        const response = await apiClient.post("/api/user/address", {
           email: userEmail,
-          address: address,
+          ...address,
         });
         if (response.data.success) {
           setAddresses([...addresses, response.data.address]);
           setSelectedAddress(response.data.address);
-          
-          fetchAddresses()
+
+          fetchAddresses();
         }
-        toast.success('Address added successfully!');
+        toast.success("Address added successfully!");
       }
-      
+
       setShowForm(false);
     } catch (error) {
       console.error("Error submitting address:", error);
-      toast.error('An error occurred while submitting the address');
+      toast.error("An error occurred while submitting the address");
     }
   };
 
@@ -174,20 +174,22 @@ const AddressForm = () => {
 
   const handleDelete = async () => {
     try {
-      const response = await axios.delete(`/api/user/deleteAddress/${selectedAddress._id}`, {
-        params: { email: userEmail },
-      });
+      const response = await apiClient.delete(
+        `/api/user/address/${selectedAddress._id}`
+      );
       if (response.data.success) {
-        setAddresses(addresses.filter((addr) => addr._id !== selectedAddress._id));
+        setAddresses(
+          addresses.filter((addr) => addr._id !== selectedAddress._id)
+        );
         setSelectedAddress(null);
         setIsEditing(false);
-        toast.success('Address deleted successfully!');
+        toast.success("Address deleted successfully!");
       } else {
-        toast.error('Failed to delete address');
+        toast.error("Failed to delete address");
       }
     } catch (error) {
       console.error("Error deleting address:", error);
-      toast.error('An error occurred while deleting the address');
+      toast.error("An error occurred while deleting the address");
     }
   };
 
@@ -225,7 +227,7 @@ const AddressForm = () => {
   };
   const onSave = async (editedAddress) => {
     try {
-      const response = await axios.put("/api/user/updateAddress", {
+      const response = await apiClient.put("/api/user/updateAddress", {
         email: userEmail,
         address: { ...editedAddress, _id: selectedAddress._id },
       });
@@ -238,13 +240,13 @@ const AddressForm = () => {
         setIsEditing(false);
         setSelectedAddress(null);
         setShowForm(false);
-        toast.success('Address updated successfully!');
+        toast.success("Address updated successfully!");
       } else {
-        toast.error('Failed to update address');
+        toast.error("Failed to update address");
       }
     } catch (error) {
       console.error("Error saving address:", error);
-      toast.error('An error occurred while saving the address');
+      toast.error("An error occurred while saving the address");
     }
   };
   return (
@@ -261,7 +263,9 @@ const AddressForm = () => {
           {addresses.map((addr) => (
             <li
               key={addr._id}
-              className={`cursor-pointer p-2 border-b hover:bg-gray-200 rounded-md ${selectedAddress?._id === addr._id ? 'bg-gray-200' : ''}`}
+              className={`cursor-pointer p-2 border-b hover:bg-gray-200 rounded-md ${
+                selectedAddress?._id === addr._id ? "bg-gray-200" : ""
+              }`}
               onClick={() => {
                 setSelectedAddress(addr);
                 setAddress(addr);
@@ -274,11 +278,15 @@ const AddressForm = () => {
         </ul>
       </div>
       <div className="md:w-3/4 p-4 h-full">
-        <div className='w-full h-screen -z-10 absolute left-0 right-0 bg-gray-100 '></div>
+        <div className="w-full h-screen -z-10 absolute left-0 right-0 bg-gray-100 "></div>
         <h2 className="text-xl font-bold mb-4">
-          {selectedAddress 
-            ? (isEditing ? "Edit Address" : "")
-            : (showForm ? "Add New Address" : "Select an Address")}
+          {selectedAddress
+            ? isEditing
+              ? "Edit Address"
+              : ""
+            : showForm
+            ? "Add New Address"
+            : "Select an Address"}
         </h2>
 
         {showForm ? (
@@ -341,12 +349,14 @@ const AddressForm = () => {
                   label: country.name,
                 }))}
                 onChange={handleCountryChange}
-                value={address.country && {
-                  value: countries.find(
-                    (country) => country.name === address.country
-                  ).isoCode,
-                  label: address.country,
-                }}
+                value={
+                  address.country && {
+                    value: countries.find(
+                      (country) => country.name === address.country
+                    ).isoCode,
+                    label: address.country,
+                  }
+                }
               />
             </div>
             <div>
@@ -357,11 +367,13 @@ const AddressForm = () => {
                   label: state.name,
                 }))}
                 onChange={handleStateChange}
-                value={address.state && {
-                  value: states.find((state) => state.name === address.state)
-                    .isoCode,
-                  label: address.state,
-                }}
+                value={
+                  address.state && {
+                    value: states.find((state) => state.name === address.state)
+                      .isoCode,
+                    label: address.state,
+                  }
+                }
               />
             </div>
             <div>
@@ -372,10 +384,12 @@ const AddressForm = () => {
                   value: city.id,
                 }))}
                 onChange={handleCityChange}
-                value={address.city && {
-                  label: address.city,
-                  value: cities.find((city) => city.name === address.city).id,
-                }}
+                value={
+                  address.city && {
+                    label: address.city,
+                    value: cities.find((city) => city.name === address.city).id,
+                  }
+                }
               />
             </div>
             <div>
@@ -414,7 +428,13 @@ const AddressForm = () => {
             </div>
           </form>
         ) : (
-          selectedAddress && <AddressDisplay address={selectedAddress} onEdit={handleEdit} onDelete={handleDelete} />
+          selectedAddress && (
+            <AddressDisplay
+              address={selectedAddress}
+              onEdit={handleEdit}
+              onDelete={handleDelete}
+            />
+          )
         )}
       </div>
     </div>

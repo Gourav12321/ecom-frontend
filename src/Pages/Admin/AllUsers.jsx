@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import axios from 'axios';
+import apiClient from '../../config/api.js';
 import { toast } from 'react-toastify';
 import { FaEdit, FaTrash } from 'react-icons/fa';
 
@@ -12,8 +12,8 @@ const AllUsers = () => {
     const fetchUsers = async () => {
       setLoading(true);
       try {
-        const response = await axios.get('/api/user/users');
-        setUsers(response.data);
+        const response = await apiClient.get('/api/user/users');
+        setUsers(response.data.users);
       } catch (error) {
         toast.error('Failed to fetch users');
       } finally {
@@ -32,10 +32,10 @@ const AllUsers = () => {
       toast.success('User deleted successfully');
 
       try {
-        await axios.delete(`/api/user/delete-user/${userId}`);
+        await apiClient.delete(`/api/user/delete-user/${userId}`);
 
-        const response = await axios.get('/api/user/users');
-        setUsers(response.data);
+        const response = await apiClient.get('/api/user/users');
+        setUsers(response.data.users);
 
       } catch (error) {
         toast.error('Failed to delete user');
@@ -44,15 +44,33 @@ const AllUsers = () => {
     }
   };
 
-  const handleSave = async () => {
+  const handleSaveUser = async () => {
     try {
-      await axios.put('/api/user/update-user', editingUser);
-      toast.success('User updated successfully');
-      setEditingUser(null);
+      setLoading(true);
 
-      const response = await axios.get('/api/user/users');
-      setUsers(response.data);
+      const response = await apiClient.get('/api/user/users');
+      setUsers(response.data.users);
+
+      setEditingUser(null);
+      toast.success('User updated successfully!');
     } catch (error) {
+      console.error('Error updating user:', error);
+      toast.error('Failed to update user');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleUpdate = async () => {
+    try {
+      await apiClient.put('/api/user/update-user', editingUser);
+      handleSaveUser();
+      const response = await apiClient.get('/api/user/users');
+      setUsers(response.data.users);
+      setEditingUser(null);
+      toast.success('User updated successfully!');
+    } catch (error) {
+      console.error('Error updating user:', error);
       toast.error('Failed to update user');
     }
   };
@@ -137,7 +155,7 @@ const AllUsers = () => {
             </div>
             <div className="flex justify-end space-x-2">
               <button
-                onClick={handleSave}
+                onClick={handleUpdate}
                 className="bg-blue-500 text-white px-4 py-2 rounded"
               >
                 Save

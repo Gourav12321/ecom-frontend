@@ -1,13 +1,13 @@
 import React, { useEffect, useState } from 'react';
-import axios from 'axios';
-import { useDispatch, useSelector } from 'react-redux';
 import { Link, useNavigate } from 'react-router-dom';
 import { IoEye, IoEyeOff } from 'react-icons/io5';
+import { useDispatch, useSelector } from 'react-redux';
 import { setUser } from '../Redux/userSlice';
 import { toast } from 'react-toastify';
 
 import styles from '../../style';
 import OAuthLogin from './OAuth Login';
+import apiClient from '../../config/api.js';
 
 function Signin() {
   const dispatch = useDispatch();
@@ -38,26 +38,29 @@ function Signin() {
     e.preventDefault();
     setIsLoading(true); // Show loading spinner
     try {
-      const response = await axios.post('/api/user/signin', data);
-      if (response.data.success === true) {
+      const response = await apiClient.post('/api/user/signin', data);
+      const userData = response.data;
+
+      if (userData.success) {
         toast.success('Login Successfully');
         setTimeout(() => {
           dispatch(
             setUser({
-              fullName: response.data.user.fullName,
-              email: response.data.user.email,
-              profile: response.data.user.profile,
-              role: response.data.user.role,
+              fullName: userData.user.fullName,
+              email: userData.user.email,
+              profile: userData.user.profile,
+              role: userData.user.role,
             })
           );
         }, 1500);
-       
-        
+
         navigate('/');
-      } 
+      } else {
+        toast.error(userData.message);
+      }
     } catch (error) {
-      console.error('Error:', error);
-      toast.error(error.response.data.message);
+      const errorMessage = error.response?.data?.message || 'An error occurred during signin';
+      toast.error(errorMessage);
     } finally {
       setIsLoading(false); // Hide loading spinner
     }

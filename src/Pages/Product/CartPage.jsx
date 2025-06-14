@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { updateCartItem, setCart } from '../Redux/cartSlice';
-import axios from 'axios';
+import apiClient from '../../config/api.js';
 import { Link } from 'react-router-dom';
 import { FaTrashAlt } from 'react-icons/fa';
 
@@ -15,7 +15,7 @@ const CartPage = () => {
   useEffect(() => {
     const fetchCart = async () => {
       try {
-        const response = await axios.get(`/api/cart/user/${user.email}`);
+        const response = await apiClient.get(`/api/cart/user/${user.email}`);
         const orders = response.data.orders;
         if (orders && orders.length > 0) {
           const aggregatedCart = orders.reduce((acc, order) => {
@@ -71,7 +71,7 @@ const CartPage = () => {
     try {
       if (quantity > 1) {
         const newQuantity = quantity - 1;
-        await axios.post('/api/cart/update-item', {
+        await apiClient.post('/api/cart/update-item', {
           email: user.email,
           productId: id,
           quantity: newQuantity,
@@ -91,7 +91,7 @@ const CartPage = () => {
     try {
       if (quantity < stock) {
         const newQuantity = quantity + 1;
-        await axios.post('/api/cart/update-item', {
+        await apiClient.post('/api/cart/update-item', {
           email: user.email,
           productId: id,
           quantity: newQuantity,
@@ -109,7 +109,7 @@ const CartPage = () => {
 
   const handleDeleteItem = async (id) => {
     try {
-      await axios.post('/api/cart/remove-item', {
+      await apiClient.post('/api/cart/remove-item', {
         email: user.email,
         productId: id,
       });

@@ -4,8 +4,8 @@ import { app } from '../../Firebase.js';
 import { useDispatch } from 'react-redux';
 import { setUser } from '../Redux/userSlice.js';
 import { useNavigate } from 'react-router-dom';
-import axios from 'axios';
-import {  toast } from 'react-toastify';
+import apiClient from '../../config/api.js';
+import { toast } from 'react-toastify';
 
 function OAuthLogin() {
   const dispatch = useDispatch();
@@ -21,9 +21,8 @@ function OAuthLogin() {
         email: result.user.email,
       };
   
-      const response = await axios.post('/api/user/oAuthLogin', payload);
+      const response = await apiClient.post('/api/user/oAuthLogin', payload);
 
-      
       dispatch(setUser({
         fullName: response.data.user.fullName,
         email: response.data.user.email,

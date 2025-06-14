@@ -1,6 +1,6 @@
 import React from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import axios from 'axios';
+import apiClient from '../../config/api.js';
 import { addToCart } from '../Redux/cartSlice';
 import { toast } from 'react-toastify';
 
@@ -15,7 +15,7 @@ const AddToCartButton = ({ product, quantity = 1 }) => {
     }
 
     try {
-      const response = await axios.post('/api/cart/add', {
+      const response = await apiClient.post('/api/cart/add', {
         email: user.email,
         cart: [{ productId: product._id, quantity }],
       });

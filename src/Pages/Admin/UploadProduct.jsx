@@ -1,8 +1,9 @@
 import React, { useState, useEffect } from 'react';
-import axios from 'axios';
+import apiClient from '../../config/api.js';
 import { storage } from '../../Firebase.js';
 import { ref, uploadBytes, getDownloadURL } from "firebase/storage";
-import {  toast } from 'react-toastify';
+import { toast } from 'react-toastify';
+
 const UploadProduct = () => {
   const [product, setProduct] = useState({
     title: '',
@@ -47,7 +48,7 @@ const UploadProduct = () => {
   useEffect(() => {
     const fetchCategories = async () => {
       try {
-        const { data } = await axios.get('/api/categories');
+        const { data } = await apiClient.get('/api/categories');
         setCategories(data.categories);
       } catch (error) {
         console.error('Failed to fetch categories:', error);
@@ -62,7 +63,7 @@ const UploadProduct = () => {
     setProduct((prevProduct) => ({ ...prevProduct, category: categoryId }));
 
     try {
-      const { data } = await axios.get(`/api/categories/${categoryId}/subcategories`);
+      const { data } = await apiClient.get(`/api/categories/${categoryId}/subcategories`);
       setSubcategories(data.subcategories);
     } catch (error) {
       console.error('Failed to fetch subcategories:', error);
@@ -181,8 +182,7 @@ const UploadProduct = () => {
   
       const productData = { ...product, thumbnail: thumbnailUrl, images: imageUrls };
   
-  
-      await axios.post('/api/products', productData);
+      await apiClient.post('/api/products', productData);
       toast.success('Product uploaded successfully!');
       // Reset form or redirect after successful upload if needed
     } catch (error) {

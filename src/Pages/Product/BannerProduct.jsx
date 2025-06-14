@@ -5,7 +5,7 @@ import 'swiper/css';
 import 'swiper/css/navigation';
 import 'swiper/css/pagination';
 import 'swiper/css/autoplay';
-import axios from 'axios';
+import apiClient from '../../config/api.js';
 import { Link } from 'react-router-dom';
 
 function BannerProduct() {
@@ -23,7 +23,7 @@ function BannerProduct() {
     useEffect(() => {
         const fetchData = async () => {
             try {
-                const response = await axios.get('/api/categories');
+                const response = await apiClient.get('/api/categories');
                 const filteredCategories = response.data.categories.filter((photo) => photo.bannerPhoto !== null);
                 setPhotoData(filteredCategories);
             } catch (error) {

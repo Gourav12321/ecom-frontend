@@ -1,22 +1,28 @@
-import React, { useState, useEffect } from 'react';
-import axios from 'axios';
-import {  toast } from 'react-toastify';
+import React, { useState, useEffect } from "react";
+import apiClient from "../../config/api.js";
+import { toast } from "react-toastify";
+
 const AllProducts = () => {
   const [products, setProducts] = useState([]);
   const [selectedProduct, setSelectedProduct] = useState(null);
   const [isEditing, setIsEditing] = useState(false);
   const [formData, setFormData] = useState({});
 
-  const fetchProducts = async () => {
-    try {
-      const { data } = await axios.get('/api/products');
-      setProducts(data);
-    } catch (error) {
-      console.error('Failed to fetch products:', error);
-    }
-  };
-
   useEffect(() => {
+    const fetchProducts = async () => {
+      try {
+        const response = await apiClient.get("/api/products");
+        if (response.data.success) {
+          setProducts(response.data.products);
+        } else {
+          toast.error("Failed to fetch products");
+        }
+      } catch (err) {
+        console.error("Error fetching products:", err);
+        toast.error("Failed to fetch products");
+      }
+    };
+
     fetchProducts();
   }, []);
 
@@ -26,12 +32,19 @@ const AllProducts = () => {
   };
 
   const handleDelete = async (id) => {
-    try {
-      await axios.delete(`/api/products/${id}`);
-      setProducts(products.filter((product) => product._id !== id));
-      toast.success('Product has been deleted')
-    } catch (error) {
-      console.error('Failed to delete product:', error);
+    if (window.confirm("Are you sure you want to delete this product?")) {
+      try {
+        const response = await apiClient.delete(`/api/products/${id}`);
+        if (response.data.success) {
+          setProducts(products.filter((product) => product._id !== id));
+          toast.success("Product deleted successfully");
+        } else {
+          toast.error("Failed to delete product");
+        }
+      } catch (error) {
+        console.error("Error deleting product:", error);
+        toast.error("Error deleting product");
+      }
     }
   };
 
@@ -48,11 +61,11 @@ const AllProducts = () => {
       stock: product.stock,
       sku: product.sku,
       weight: product.weight,
-      dimensions: product.dimensions || { width: '', height: '', depth: '' },
-      warrantyInformation: product.warrantyInformation || '',
-      shippingInformation: product.shippingInformation || '',
-      availabilityStatus: product.availabilityStatus || 'In stock',
-      returnPolicy: product.returnPolicy || '',
+      dimensions: product.dimensions || { width: "", height: "", depth: "" },
+      warrantyInformation: product.warrantyInformation || "",
+      shippingInformation: product.shippingInformation || "",
+      availabilityStatus: product.availabilityStatus || "In stock",
+      returnPolicy: product.returnPolicy || "",
       minimumOrderQuantity: product.minimumOrderQuantity || 1,
       tags: product.tags || [],
       thumbnail: product.thumbnail,
@@ -62,8 +75,8 @@ const AllProducts = () => {
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
-    if (name.includes('dimensions.')) {
-      const [_, key] = name.split('.');
+    if (name.includes("dimensions.")) {
+      const [_, key] = name.split(".");
       setFormData({
         ...formData,
         dimensions: {
@@ -81,14 +94,22 @@ const AllProducts = () => {
 
   const handleSave = async (id) => {
     try {
-      const updatedProduct = await axios.put(`/api/products/${id}`, formData);
-      setProducts(products.map(product => product._id === id ? updatedProduct.data : product));
-      setIsEditing(false);
-      setSelectedProduct(null);
-      toast.success('Product is updated ')
-      fetchProducts
+      const response = await apiClient.put(`/api/products/${id}`, formData);
+      if (response.data.success) {
+        setProducts(
+          products.map((product) =>
+            product._id === id ? response.data.product : product
+          )
+        );
+        setIsEditing(false);
+        setSelectedProduct(null);
+        toast.success("Product updated successfully");
+      } else {
+        toast.error("Failed to update product");
+      }
     } catch (error) {
-      console.error('Failed to update product:', error);
+      console.error("Error updating product:", error);
+      toast.error("Error updating product");
     }
   };
 
@@ -103,7 +124,9 @@ const AllProducts = () => {
 
   return (
     <div className="max-w-6xl mx-auto p-4 lg:pt-0 pt-10">
-      <h1 className="text-2xl font-bold mb-6 text-center md:text-left">All Products</h1>
+      <h1 className="text-2xl font-bold mb-6 text-center md:text-left">
+        All Products
+      </h1>
       <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
         {products.map((product) => (
           <div
@@ -119,10 +142,21 @@ const AllProducts = () => {
             <div className="p-4">
               <h2 className="text-lg font-semibold">{product.title}</h2>
               <div className="text-gray-600">
-                <p className={`${product.discountPercentage ? 'line-through' : ''}`}> Rs.{product.price}</p>
+                <p
+                  className={`${
+                    product.discountPercentage ? "line-through" : ""
+                  }`}
+                >
+                  {" "}
+                  Rs.{product.price}
+                </p>
                 {product.discountPercentage && (
                   <p className="text-green-500 font-bold">
-                   Rs. {calculateDiscountPrice(product.price, product.discountPercentage)}
+                    Rs.{" "}
+                    {calculateDiscountPrice(
+                      product.price,
+                      product.discountPercentage
+                    )}
                   </p>
                 )}
               </div>
@@ -142,19 +176,27 @@ const AllProducts = () => {
             </button>
             {!isEditing ? (
               <>
-                <h2 className="text-2xl font-bold mb-4 text-center">{selectedProduct.title}</h2>
+                <h2 className="text-2xl font-bold mb-4 text-center">
+                  {selectedProduct.title}
+                </h2>
                 <img
                   src={selectedProduct.images[0]}
                   alt={selectedProduct.title}
                   className="w-full h-64 object-contain mb-4"
                 />
-                <p className="text-gray-700 mb-4">{selectedProduct.description}</p>
+                <p className="text-gray-700 mb-4">
+                  {selectedProduct.description}
+                </p>
                 <p className="mb-2">
                   <strong>Price:</strong>Rs. {selectedProduct.price}
                 </p>
                 {selectedProduct.discountPercentage && (
                   <p className="mb-2 text-green-500">
-                    <strong>Discounted Price:</strong>Rs. {calculateDiscountPrice(selectedProduct.price, selectedProduct.discountPercentage)}
+                    <strong>Discounted Price:</strong>Rs.{" "}
+                    {calculateDiscountPrice(
+                      selectedProduct.price,
+                      selectedProduct.discountPercentage
+                    )}
                   </p>
                 )}
                 <p className="mb-2">
@@ -167,7 +209,7 @@ const AllProducts = () => {
                   <strong>Stock:</strong> {selectedProduct.stock}
                 </p>
                 <p className="mb-2">
-                  <strong>Tags:</strong> {selectedProduct.tags.join(', ')}
+                  <strong>Tags:</strong> {selectedProduct.tags.join(", ")}
                 </p>
                 <p className="mb-2">
                   <strong>SKU:</strong> {selectedProduct.sku}
@@ -176,22 +218,29 @@ const AllProducts = () => {
                   <strong>Weight:</strong> {selectedProduct.weight} gm
                 </p>
                 <p className="mb-2">
-                  <strong>Dimensions:</strong> {selectedProduct.dimensions.width} x {selectedProduct.dimensions.height} x {selectedProduct.dimensions.depth} mm
+                  <strong>Dimensions:</strong>{" "}
+                  {selectedProduct.dimensions.width} x{" "}
+                  {selectedProduct.dimensions.height} x{" "}
+                  {selectedProduct.dimensions.depth} mm
                 </p>
                 <p className="mb-2">
-                  <strong>Warranty:</strong> {selectedProduct.warrantyInformation}
+                  <strong>Warranty:</strong>{" "}
+                  {selectedProduct.warrantyInformation}
                 </p>
                 <p className="mb-2">
-                  <strong>Shipping Information:</strong> {selectedProduct.shippingInformation}
+                  <strong>Shipping Information:</strong>{" "}
+                  {selectedProduct.shippingInformation}
                 </p>
                 <p className="mb-2">
-                  <strong>Availability Status:</strong> {selectedProduct.availabilityStatus}
+                  <strong>Availability Status:</strong>{" "}
+                  {selectedProduct.availabilityStatus}
                 </p>
                 <p className="mb-2">
                   <strong>Return Policy:</strong> {selectedProduct.returnPolicy}
                 </p>
                 <p className="mb-2">
-                  <strong>Minimum Order Quantity:</strong> {selectedProduct.minimumOrderQuantity}
+                  <strong>Minimum Order Quantity:</strong>{" "}
+                  {selectedProduct.minimumOrderQuantity}
                 </p>
                 <div className="flex space-x-2 mt-4 justify-center">
                   <button
@@ -210,11 +259,15 @@ const AllProducts = () => {
               </>
             ) : (
               <>
-                <h2 className="text-2xl font-bold mb-4 text-center">Edit Product</h2>
-                <form onSubmit={(e) => {
-                  e.preventDefault();
-                  handleSave(selectedProduct._id);
-                }}>
+                <h2 className="text-2xl font-bold mb-4 text-center">
+                  Edit Product
+                </h2>
+                <form
+                  onSubmit={(e) => {
+                    e.preventDefault();
+                    handleSave(selectedProduct._id);
+                  }}
+                >
                   {/* Repeat this pattern for all fields */}
                   <div className="mb-4">
                     <label className="block text-gray-700 mb-2">Title</label>
@@ -247,7 +300,9 @@ const AllProducts = () => {
                     />
                   </div>
                   <div className="mb-4">
-                    <label className="block text-gray-700 mb-2">Discount Percentage</label>
+                    <label className="block text-gray-700 mb-2">
+                      Discount Percentage
+                    </label>
                     <input
                       type="number"
                       name="discountPercentage"
@@ -257,7 +312,9 @@ const AllProducts = () => {
                     />
                   </div>
                   <div className="mb-4">
-                    <label className="block text-gray-700 mb-2">Description</label>
+                    <label className="block text-gray-700 mb-2">
+                      Description
+                    </label>
                     <textarea
                       name="description"
                       value={formData.description}
@@ -297,7 +354,9 @@ const AllProducts = () => {
                     />
                   </div>
                   <div className="mb-4">
-                    <label className="block text-gray-700 mb-2">Weight (gm)</label>
+                    <label className="block text-gray-700 mb-2">
+                      Weight (gm)
+                    </label>
                     <input
                       type="number"
                       name="weight"
@@ -307,7 +366,9 @@ const AllProducts = () => {
                     />
                   </div>
                   <div className="mb-4">
-                    <label className="block text-gray-700 mb-2">Dimensions (mm)</label>
+                    <label className="block text-gray-700 mb-2">
+                      Dimensions (mm)
+                    </label>
                     <div className="grid grid-cols-3 gap-4">
                       <input
                         type="number"
@@ -336,7 +397,9 @@ const AllProducts = () => {
                     </div>
                   </div>
                   <div className="mb-4">
-                    <label className="block text-gray-700 mb-2">Warranty Information</label>
+                    <label className="block text-gray-700 mb-2">
+                      Warranty Information
+                    </label>
                     <input
                       type="text"
                       name="warrantyInformation"
@@ -346,7 +409,9 @@ const AllProducts = () => {
                     />
                   </div>
                   <div className="mb-4">
-                    <label className="block text-gray-700 mb-2">Shipping Information</label>
+                    <label className="block text-gray-700 mb-2">
+                      Shipping Information
+                    </label>
                     <input
                       type="text"
                       name="shippingInformation"
@@ -356,7 +421,9 @@ const AllProducts = () => {
                     />
                   </div>
                   <div className="mb-4">
-                    <label className="block text-gray-700 mb-2">Availability Status</label>
+                    <label className="block text-gray-700 mb-2">
+                      Availability Status
+                    </label>
                     <select
                       name="availabilityStatus"
                       value={formData.availabilityStatus}
@@ -368,7 +435,9 @@ const AllProducts = () => {
                     </select>
                   </div>
                   <div className="mb-4">
-                    <label className="block text-gray-700 mb-2">Return Policy</label>
+                    <label className="block text-gray-700 mb-2">
+                      Return Policy
+                    </label>
                     <textarea
                       name="returnPolicy"
                       value={formData.returnPolicy}
@@ -377,7 +446,9 @@ const AllProducts = () => {
                     />
                   </div>
                   <div className="mb-4">
-                    <label className="block text-gray-700 mb-2">Minimum Order Quantity</label>
+                    <label className="block text-gray-700 mb-2">
+                      Minimum Order Quantity
+                    </label>
                     <input
                       type="number"
                       name="minimumOrderQuantity"
@@ -391,11 +462,13 @@ const AllProducts = () => {
                     <input
                       type="text"
                       name="tags"
-                      value={formData.tags.join(', ')}
+                      value={formData.tags.join(", ")}
                       onChange={(e) =>
                         setFormData({
                           ...formData,
-                          tags: e.target.value.split(',').map((tag) => tag.trim()),
+                          tags: e.target.value
+                            .split(",")
+                            .map((tag) => tag.trim()),
                         })
                       }
                       className="w-full p-2 border border-gray-300 rounded-lg"

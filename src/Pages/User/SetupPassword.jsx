@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
-import axios from 'axios';
+import apiClient from '../../config/api.js';
 import { FaCheckCircle, FaExclamationCircle } from 'react-icons/fa';
 import CircularProgress from '@mui/material/CircularProgress'; 
 import {  toast } from 'react-toastify';
@@ -46,7 +46,7 @@ function SetupPassword() {
       setLoading(true);
       setError('');
 
-      const response = await axios.post('/api/user/setup-password', { email, password });
+      const response = await apiClient.post('/api/user/setup-password', { email, password });
       
       if (response.data.success) {
         toast.success('Password setup Succesfully!');

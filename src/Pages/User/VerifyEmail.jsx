@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
-import axios from 'axios';
+import apiClient from '../../config/api.js';
 import { useSelector } from 'react-redux';
 import { toast } from 'react-toastify';
 import { FaCheckCircle, FaExclamationCircle } from 'react-icons/fa';
@@ -27,7 +27,7 @@ function VerifyEmail() {
           return;
         }
 
-        const response = await axios.get(`/api/user/verify-email?token=${token}`);
+        const response = await apiClient.get(`/api/user/verify-email?token=${token}`);
         if (response.data.success) {
           setStatus('success');
           toast.success('Email verified successfully!');

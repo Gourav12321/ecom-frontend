@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import axios from 'axios';
+import apiClient from '../../config/api.js';
 import { Swiper, SwiperSlide } from 'swiper/react';
 import { Link } from 'react-router-dom';
 import 'swiper/css';
@@ -21,7 +21,7 @@ const VerticalCardProduct = ({ heading, categoryName }) => {
     const fetchProducts = async () => {
       try {
         setLoading(true);
-        const response = await axios.get(`/api/products/category/${categoryName}`);
+        const response = await apiClient.get(`/api/products/category/${categoryName}`);
         setProducts(response.data.products);
       } catch (err) {
         console.error('Error fetching products:', err);
@@ -38,7 +38,7 @@ const VerticalCardProduct = ({ heading, categoryName }) => {
     const fetchWishlist = async () => {
       if (user && user.email) {
         try {
-          const response = await axios.get(`/api/wishlist/${user.email}`);
+          const response = await apiClient.get(`/api/wishlist/${user.email}`);
           setWishlist(response.data.wishlist.products.map((p) => p._id));
         } catch (err) {
           console.error('Error fetching wishlist:', err);
@@ -54,11 +54,11 @@ const VerticalCardProduct = ({ heading, categoryName }) => {
 
     try {
       if (wishlist.includes(productId)) {
-        await axios.delete('/api/wishlist', { data: { email: user.email, productId } });
+        await apiClient.delete('/api/wishlist', { data: { email: user.email, productId } });
         setWishlist(wishlist.filter((id) => id !== productId));
         toast.success('Product Remove from wishlist')
       } else {
-        await axios.post('/api/wishlist', { email: user.email, productId });
+        await apiClient.post('/api/wishlist', { email: user.email, productId });
         
         setWishlist([...wishlist, productId]);
         toast.success('Product Added to wishlist')

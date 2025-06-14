@@ -1,6 +1,6 @@
 import React from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import axios from 'axios';
+import apiClient from '../../config/api.js';
 import { MdFavoriteBorder } from 'react-icons/md';
 import {  toast } from 'react-toastify';
 const WishlistButton = ({ product }) => {
@@ -12,7 +12,7 @@ const WishlistButton = ({ product }) => {
       if(!user){
         return toast.error('Please Sign In First');
       }
-      await axios.post('/api/wishlist', { email: user.email, productId: product });
+      await apiClient.post('/api/wishlist', { email: user.email, productId: product });
       toast.success('Added to Wishlist!')
     } catch (error) {
       toast.error('Error adding to wishlist:', error);

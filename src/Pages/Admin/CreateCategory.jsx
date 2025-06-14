@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import axios from 'axios';
+import apiClient from '../../config/api.js';
 import { ref, uploadBytesResumable, getDownloadURL } from 'firebase/storage';
 import { storage } from '../../Firebase';
 import {  toast } from 'react-toastify';
@@ -15,7 +15,7 @@ const CreateCategory = () => {
   useEffect(() => {
     const fetchCategories = async () => {
       try {
-        const { data } = await axios.get('/api/categories');
+        const { data } = await apiClient.get('/api/categories');
         if (data.success) {
           setCategories(data.categories);
         }
@@ -68,7 +68,7 @@ const CreateCategory = () => {
   const handleCategorySubmit = async (e) => {
     e.preventDefault();
     try {
-      const response = await axios.post('/api/categories', {
+      const response = await apiClient.post('/api/categories', {
         name: categoryName,
         photo: imageUrl,
       });
@@ -91,7 +91,7 @@ const CreateCategory = () => {
   const handleSubCategorySubmit = async (e) => {
     e.preventDefault();
     try {
-      const response = await axios.post('/api/subcategories', {
+      const response = await apiClient.post('/api/subcategories', {
         name: subCategoryName,
         categoryId: selectedCategory,
       });
@@ -111,7 +111,7 @@ const CreateCategory = () => {
   const handleDeleteCategory = async (categoryId) => {
     if (window.confirm("Are you sure you want to delete this category?")) {
       try {
-        const response = await axios.delete(`/api/categories/${categoryId}`);
+        const response = await apiClient.delete(`/api/categories/${categoryId}`);
         if (response.data.success) {
           setMessage("Category deleted successfully!");
           toast.success('Category has been deleted')
@@ -129,7 +129,7 @@ const CreateCategory = () => {
   const handleDeleteSubCategory = async (subCategoryId) => {
     if (window.confirm("Are you sure you want to delete this subcategory?")) {
       try {
-        const response = await axios.delete(`/api/subcategories/${subCategoryId}`);
+        const response = await apiClient.delete(`/api/subcategories/${subCategoryId}`);
         if (response.data.success) {
           setMessage("Subcategory deleted successfully!");
           toast.success('Subcategory deleted successfully!')

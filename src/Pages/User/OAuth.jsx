@@ -1,50 +1,69 @@
-import React from 'react';
-import { GoogleAuthProvider, signInWithPopup, getAuth } from 'firebase/auth';
-import { app } from '../../Firebase.js';
-import { useNavigate } from 'react-router-dom';
-import axios from 'axios';
-import {  toast } from 'react-toastify';
+import React from "react";
+import { GoogleAuthProvider, signInWithPopup, getAuth } from "firebase/auth";
+import { app } from "../../Firebase.js";
+import apiClient from "../../config/api.js";
+import { useDispatch } from "react-redux";
+import { setUser } from "../Redux/userSlice.js";
+import { useNavigate } from "react-router-dom";
+import { toast } from "react-toastify";
+
 function OAuth() {
+  const dispatch = useDispatch();
   const navigate = useNavigate();
   const handleGoogle = async () => {
     try {
       const provider = new GoogleAuthProvider();
       const auth = getAuth(app);
       const result = await signInWithPopup(auth, provider);
-      const displayName = result.user.displayName || "";
-  
+
       const payload = {
-        fullName : displayName,
         email: result.user.email,
-        profile: result.user.photoURL
+        fullName: result.user.displayName,
+        profile: result.user.photoURL,
       };
-  
-      const response = await axios.post('/api/user/oAuth', payload);
-  
-  
-      if (response.data.success) {
-      toast.success("SignUp Successfully Please Setup your Password");
-        navigate('/setup-password', { state: { email: result.user.email } });
+
+      const response = await apiClient.post("/api/user/oAuth", payload);
+
+      dispatch(
+        setUser({
+          fullName: response.data.user.fullName,
+          email: response.data.user.email,
+          profile: response.data.user.profile,
+          role: response.data.user.role,
+        })
+      );
+
+      if (response.data.user.password === null) {
+        toast.success("Account created successfully!");
+        navigate("/setup-password", {
+          state: { email: response.data.user.email },
+        });
       } else {
-        toast.error('OAuth registration failed. Please try again.');
+        toast.success("Login Successfully");
+        setTimeout(() => {
+          navigate("/");
+        }, 1500);
       }
     } catch (error) {
-      toast.error( error.response?.data.message || error.message);
+      console.error("Error in OAuth:", error.response?.data || error.message);
+      toast.error(error.response?.data?.message || "An error occurred");
     }
   };
-  
 
   return (
     <div>
       <button
-        type='button'
-        className=' relative w-full h-[40px] flex items-center justify-center py-2 px-4 border border-gray-300 shadow-lg text-sm font-medium rounded-md '
+        type="button"
+        className=" relative w-full h-[40px] flex items-center justify-center py-2 px-4 border border-gray-300 shadow-lg text-sm font-medium rounded-md "
         onClick={handleGoogle}
       >
-        <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/c/c1/Google_%22G%22_logo.svg/480px-Google_%22G%22_logo.svg.png" alt="google" className='w-7 h-7 mr-2' />
+        <img
+          src="https://upload.wikimedia.org/wikipedia/commons/thumb/c/c1/Google_%22G%22_logo.svg/480px-Google_%22G%22_logo.svg.png"
+          alt="google"
+          className="w-7 h-7 mr-2"
+        />
         Sign Up With Google
       </button>
-
     </div>
   );
 }

@@ -1,62 +1,67 @@
-import React, { useState, useEffect } from 'react';
-import axios from 'axios';
-import { FaTrashAlt } from 'react-icons/fa';
-import { toast } from 'react-toastify';
+import React, { useState, useEffect } from "react";
+import apiClient from "../../config/api.js";
+import { FaTrashAlt } from "react-icons/fa";
+import { toast } from "react-toastify";
 
 const AdminOrderPage = () => {
   const [orders, setOrders] = useState([]);
-  const [searchQuery, setSearchQuery] = useState('');
+  const [searchQuery, setSearchQuery] = useState("");
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
-  const fetchOrders = async () => {
-    setLoading(true);
+  useEffect(() => {
+    const fetchOrders = async () => {
+      try {
+        setLoading(true);
+        const response = await apiClient.get("/api/orders");
+        if (response.data.success) {
+          setOrders(response.data.orders);
+        } else {
+          setError("Failed to fetch orders");
+        }
+      } catch (err) {
+        console.error("Error fetching orders:", err);
+        setError("Failed to fetch orders");
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchOrders();
+  }, []);
+
+  const updateOrderStatus = async (orderId, newStatus) => {
     try {
-      const response = await axios.get(`/api/order/admin/orders`, {
-        params: { searchQuery },
+      const response = await apiClient.put(`/api/orders/${orderId}/status`, {
+        orderStatus: newStatus,
       });
 
       if (response.data.success) {
-        const { orders } = response.data;
-        if (Array.isArray(orders)) {
-          setOrders(orders);
-        } else {
-          setError('Unexpected response format');
-        }
+        setOrders(
+          orders.map((order) =>
+            order._id === orderId ? { ...order, orderStatus: newStatus } : order
+          )
+        );
+        toast.success("Order status updated successfully");
       } else {
-        setError('Failed to fetch orders');
+        toast.error("Failed to update order status");
       }
     } catch (error) {
-      console.error('Error fetching orders:', error);
-      setError('Failed to fetch orders');
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  useEffect(() => {
-    fetchOrders();
-  }, [searchQuery]);
-
-  const handleStatusChange = async (orderId, status) => {
-    try {
-      await axios.post(`/api/order/admin/orders/update-status`, { orderId, status });
-      fetchOrders();
-      toast.success('Status has been updated');
-    } catch (error) {
-      console.error('Error updating order status:', error);
-      toast.error('Failed to update status');
+      console.error("Error updating order status:", error);
+      toast.error("Error updating order status");
     }
   };
 
   const handleDeleteOrder = async (orderId) => {
     try {
-      await axios.delete(`/api/order/admin/orders/delete`, { data: { orderId } });
-      fetchOrders();
-      toast.success('Order has been deleted');
+      await apiClient.delete(`/api/order/admin/orders/delete`, {
+        data: { orderId },
+      });
+      setOrders(orders.filter((order) => order._id !== orderId));
+      toast.success("Order has been deleted");
     } catch (error) {
-      console.error('Error deleting order:', error);
-      toast.error('Failed to delete order');
+      console.error("Error deleting order:", error);
+      toast.error("Failed to delete order");
     }
   };
 
@@ -86,12 +91,20 @@ const AdminOrderPage = () => {
                 orders.map((order) => (
                   <tr key={order._id} className="border-b hover:bg-gray-50">
                     <td className="px-4 py-2">{order._id}</td>
-                    <td className="px-4 py-2">{order.user ? order.user.email : 'Unknown User'}</td>
-                    <td className="px-4 py-2">{order.products.map(p => p.product.title).join(', ')}</td>
-                    <td className="px-4 py-2">${order.totalAmount.toFixed(2)}</td>
+                    <td className="px-4 py-2">
+                      {order.user ? order.user.email : "Unknown User"}
+                    </td>
+                    <td className="px-4 py-2">
+                      {order.products.map((p) => p.product.title).join(", ")}
+                    </td>
+                    <td className="px-4 py-2">
+                      ${order.totalAmount.toFixed(2)}
+                    </td>
                     <td className="px-4 py-2">
                       <select
-                        onChange={(e) => handleStatusChange(order._id, e.target.value)}
+                        onChange={(e) =>
+                          updateOrderStatus(order._id, e.target.value)
+                        }
                         value={order.orderStatus}
                         className="p-2 border border-gray-300 rounded w-full"
                       >

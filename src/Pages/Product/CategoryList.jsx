@@ -1,4 +1,4 @@
-import axios from 'axios';
+import apiClient from '../../config/api.js';
 import React, { useEffect, useState, useRef } from 'react';
 import { Link } from 'react-router-dom';
 import { FaChevronLeft, FaChevronRight } from 'react-icons/fa';
@@ -15,7 +15,7 @@ const CategoryList = () => {
   const fetchCategoryProduct = async () => {
     try {
       setLoading(true);
-      const response = await axios.get('/api/categories');
+      const response = await apiClient.get('/api/categories');
       setCategoryProduct(response.data.categories || []);
     } catch (error) {
       console.error('Error fetching category products:', error);

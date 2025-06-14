@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import axios from 'axios';
+import apiClient from '../../config/api.js';
 import { Link, useNavigate } from 'react-router-dom';
 import { useSelector } from 'react-redux';
 import {  toast } from 'react-toastify';
@@ -18,10 +18,10 @@ const OrderPage = () => {
     if (user && user.email) {
       const fetchData = async () => {
         try {
-          const addressResponse = await axios.get(`/api/user/getaddressbyemail/${user.email}`);
+          const addressResponse = await apiClient.get(`/api/user/getaddressbyemail/${user.email}`);
           setAddresses(addressResponse.data.addresses);
           
-          const summaryResponse = await axios.get(`/api/cart/summary/${user.email}`);
+          const summaryResponse = await apiClient.get(`/api/cart/summary/${user.email}`);
           setOrderSummary(summaryResponse.data);
           
           const discountPercentage = summaryResponse.data.discountPercentage || 0;
