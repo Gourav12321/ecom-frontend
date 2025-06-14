@@ -6,9 +6,10 @@ export default defineConfig({
   server: {
     proxy: {
       "/api": {
-        target: "http://localhost:3000",
+        target:
+          "https://backend-psi-umber-53.vercel.app" || "http://localhost:3000", // Fallback to local server if production URL is not available
         changeOrigin: true,
-        secure: false,
+        secure: true,
         // rewrite: (path) => path.replace(/^\/api/, ''),
       },
     },
