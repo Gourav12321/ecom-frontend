@@ -14,7 +14,6 @@ const AdminOrderPage = () => {
       try {
         setLoading(true);
         const response = await apiClient.get("/api/order/admin/orders");
-        console.log("API Response:", response.data); // Debug log
 
         if (response.data && response.data.success) {
           setOrders(response.data.orders || []);
