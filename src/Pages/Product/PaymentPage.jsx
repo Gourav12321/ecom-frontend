@@ -83,7 +83,7 @@ const PaymentPage = () => {
     } catch (err) {
       console.error("Error processing payment:", err);
       setError("Payment processing failed. Please try again.");
-      navigate("/cart");
+      navigate("/orders-history");
     } finally {
       setIsLoading(false);
     }

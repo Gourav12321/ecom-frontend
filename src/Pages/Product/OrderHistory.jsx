@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
-import apiClient from "../../config/api.js";
 import { useSelector } from "react-redux";
 import { Link } from "react-router-dom";
+import apiClient from "../../config/api";
 
 const OrderHistory = () => {
   const [orders, setOrders] = useState([]);
@@ -11,11 +11,9 @@ const OrderHistory = () => {
     const fetchOrders = async () => {
       if (user && user.email) {
         try {
-          const response = await apiClient.get(
-            `/api/orders/user/${user.email}`
-          );
-          if (response.data.success) {
-            setOrders(response.data.orders);
+          const response = await apiClient.get(`/api/order/user/${user.email}`);
+          if (response.data) {
+            setOrders(response.data);
           } else {
             setError("Failed to fetch orders");
           }
