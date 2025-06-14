@@ -5,6 +5,7 @@ import apiClient from "../../config/api";
 
 const OrderHistory = () => {
   const [orders, setOrders] = useState([]);
+  const [error, setError] = useState(null);
   const user = useSelector((state) => state.user.user);
 
   useEffect(() => {
@@ -67,42 +68,59 @@ const OrderHistory = () => {
                 </p>
                 <div className="order-products">
                   {order.products && order.products.length > 0 ? (
-                    order.products.map((item, idx) => (
-                      <div
-                        key={item.product._id + idx}
-                        className="border-t border-gray-200 pt-4 mt-4"
-                      >
-                        <Link to={`/product/${item.product._id}`}>
-                          <div className="h-[11rem]">
-                            <img
-                              src={item.product.thumbnail}
-                              alt={item.product.title}
-                              className="h-[10rem] w-full object-contain"
-                            />
-                          </div>
-                          <p className="text-sm font-medium text-gray-800">
-                            {item.product.title}
-                          </p>
-                          <p className="text-sm text-gray-600">
-                            Quantity: {item.quantity}
-                          </p>
-                          <p className="text-sm text-gray-600">
-                            Original Price: {formatCurrency(item.product.price)}
-                          </p>
-                          {item.product.discountPercentage > 0 && (
-                            <p className="text-sm text-green-500">
-                              Price After Discount:{" "}
-                              {formatCurrency(
-                                calculatePriceAfterDiscount(
-                                  item.product.price,
-                                  item.product.discountPercentage
-                                )
-                              )}
+                    order.products.map((item, idx) => {
+                      // Add null check for item.product
+                      if (!item.product) {
+                        return (
+                          <div
+                            key={`missing-product-${idx}`}
+                            className="border-t border-gray-200 pt-4 mt-4"
+                          >
+                            <p className="text-sm text-red-500">
+                              Product information unavailable
                             </p>
-                          )}
-                        </Link>
-                      </div>
-                    ))
+                          </div>
+                        );
+                      }
+
+                      return (
+                        <div
+                          key={item.product._id + idx}
+                          className="border-t border-gray-200 pt-4 mt-4"
+                        >
+                          <Link to={`/product/${item.product._id}`}>
+                            <div className="h-[11rem]">
+                              <img
+                                src={item.product.thumbnail}
+                                alt={item.product.title}
+                                className="h-[10rem] w-full object-contain"
+                              />
+                            </div>
+                            <p className="text-sm font-medium text-gray-800">
+                              {item.product.title}
+                            </p>
+                            <p className="text-sm text-gray-600">
+                              Quantity: {item.quantity}
+                            </p>
+                            <p className="text-sm text-gray-600">
+                              Original Price:{" "}
+                              {formatCurrency(item.product.price)}
+                            </p>
+                            {item.product.discountPercentage > 0 && (
+                              <p className="text-sm text-green-500">
+                                Price After Discount:{" "}
+                                {formatCurrency(
+                                  calculatePriceAfterDiscount(
+                                    item.product.price,
+                                    item.product.discountPercentage
+                                  )
+                                )}
+                              </p>
+                            )}
+                          </Link>
+                        </div>
+                      );
+                    })
                   ) : (
                     <p className="text-center text-lg text-gray-500">
                       No products found in this order.
