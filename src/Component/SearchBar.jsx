@@ -46,7 +46,6 @@ function SearchBar() {
   const handleClickOutside = (event) => {
     if (inputRef.current && !inputRef.current.contains(event.target)) {
       setIcon(false);
-      // setSearch("");
     }
   };
 
