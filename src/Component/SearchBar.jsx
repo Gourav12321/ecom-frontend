@@ -60,9 +60,7 @@ function SearchBar() {
     setIcon(false);
     setSearch("");
   }, [location]);
-  const test = () => {
-    alert("hello");
-  };
+
   return (
     <div className="relative w-full lg:w-[45vw] h-[40px] items-center">
       <input
