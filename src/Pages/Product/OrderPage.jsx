@@ -63,7 +63,7 @@ const OrderPage = () => {
   };
 
   return (
-    <>
+    <div className="relative min-h-screen">
       <div className="w-full h-screen -z-10 absolute left-0 right-0 bg-gray-100"></div>
       <div className="order-page container mx-auto p-4 md:p-8 h-full">
         <h1 className="text-2xl md:text-4xl font-bold mb-6 lg:pt-4 pt-16">
@@ -143,7 +143,7 @@ const OrderPage = () => {
           Proceed to Payment
         </button>
       </div>
-    </>
+    </div>
   );
 };
 

@@ -123,7 +123,7 @@ function ProductCategory() {
   }
 
   return (
-    <>
+    <div className="min-h-screen relative">
       <div className="w-full h-screen absolute left-0 right-0 bg-gray-100"></div>
       <div className="flex flex-row gap-4 md:p-4 md:pt-[5rem] lg:pt-4 pt-[5rem] pl-0 lg:h-full relative z-10">
         <aside
@@ -164,7 +164,7 @@ function ProductCategory() {
           <ProductList products={sortedProductsList} />
         </main>
       </div>
-    </>
+    </div>
   );
 }
 

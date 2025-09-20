@@ -125,7 +125,7 @@ const CartPage = () => {
   };
 
   return (
-    <>
+    <div className="min-h-screen relative">
       <div className="w-full h-screen -z-10 absolute left-0 right-0 bg-gray-100 "></div>
       <div className="container mx-auto p-4 pt-20 h-full">
         <h1 className="text-2xl font-bold mb-4">Shopping Cart</h1>
@@ -245,7 +245,7 @@ const CartPage = () => {
           </div>
         </div>
       </div>
-    </>
+    </div>
   );
 };
 

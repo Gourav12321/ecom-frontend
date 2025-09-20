@@ -75,10 +75,7 @@ const PaymentPage = () => {
         }
       );
 
-      window.open(
-        `https://ecommerce-webapp-1.onrender.com${pdfResponse.fileUrl}`,
-        "_blank"
-      );
+      window.open(`${pdfResponse.pdfUrl}`, "_blank");
       navigate("/orders-history");
     } catch (err) {
       console.error("Error processing payment:", err);
